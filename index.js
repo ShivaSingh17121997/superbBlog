@@ -1,6 +1,6 @@
 const express = require("express")
 const bcrypt = require("bcrypt")
-const { UserModel } = require("../backend/models/user.model")
+const { UserModel } = require("./models/user.model")
 const { connection } = require("./db")
 const jwt = require("jsonwebtoken")
 const { MyRouter } = require("./routes/post.route")
@@ -22,7 +22,7 @@ app.post("/register"), async (req, res) => {
         if (user) {
             res.status(200).json({ msg: "User Already Existed,Please login in" })
         } else {
-            bcrypt.hash(Password, 5, async (err, hash) => {
+            bcrypt.hash(Password, 8, async (err, hash) => {
                 if (err) {
                     res.status(400).json({ msg: err.message })
                 } else {
@@ -37,6 +37,19 @@ app.post("/register"), async (req, res) => {
     }
 }
 
+app.post("/register", async (req, res) => {
+    const { Username, Avatar, Email, Password } = req.body;
+    try {
+        bcrypt.hash(pass, 8, async (err, hash) => {
+            const user = new UserModel({ Username, Avatar,Email, Password: hash })
+            await user.save()
+            return res.json({msg:"Registered"})
+
+        })
+    } catch (err) {
+        console.log(err)
+    }
+})
 // Login 
 
 app.post("/login", async (req, res) => {
